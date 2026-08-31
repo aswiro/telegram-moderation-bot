@@ -1,5 +1,9 @@
 # Telegram Group Management & Automation Bot
 
+<p align="center">
+  <img src="docs/assets/telegram-moderation-bot-cover.jpg" alt="Telegram Group Management & Automation Bot" width="900" />
+</p>
+
 A production-oriented Telegram group management bot built with Python and aiogram 3.
 
 This repository is a **sanitized public showcase** of a larger private project. Production credentials, database dumps, runtime logs, real Telegram IDs, invite links, and other operational data are intentionally excluded.
