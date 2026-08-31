@@ -1,0 +1,59 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  bot:
+    build: .
+    environment:
+      BOT_TOKEN: ${BOT_TOKEN}
+      SUPERADMIN_ID: ${SUPERADMIN_ID}
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      USE_WEBHOOK: ${USE_WEBHOOK:-false}
+      WEBHOOK_BASE: ${WEBHOOK_BASE:-}
+      WEBHOOK_PATH: ${WEBHOOK_PATH:-/bot}
+      WEBHOOK_SECRET: ${WEBHOOK_SECRET:-}
+      WEBAPP_HOST: 0.0.0.0
+      WEBAPP_PORT: ${WEBAPP_PORT:-8002}
+    ports:
+      - "${WEBAPP_PORT:-8002}:${WEBAPP_PORT:-8002}"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  redis_data:
